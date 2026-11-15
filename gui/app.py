@@ -1,7 +1,6 @@
 import io
 import os
 import chess
-import chess.svg
 import pygame
 
 SQUARE = 50
