@@ -8,15 +8,15 @@ PIECE_VALUES = {chess.PAWN: 10, chess.KNIGHT: 32, chess.BISHOP: 33,
 BISHOP_PAIR_BONUS = 3
 NON_PAWN_BOARD_VALUE = 2*(2*PIECE_VALUES[chess.KNIGHT] + 2*PIECE_VALUES[chess.BISHOP] + 2*PIECE_VALUES[chess.ROOK] + PIECE_VALUES[chess.QUEEN])
 TRADE_FACTOR = 0.25
-MY_THREAT_VALUE = 0.03
-OPPONENT_COUNTER_VALUE = 0.01
+MY_THREAT_VALUE = 0.3
+OPPONENT_COUNTER_VALUE = 0.1
 KING_ZONE = 0.5
 CHECK_VALUE = 2.5
 PAWN_ADVANCEMENT_VALUE = 0.4
 
 
 def material_strategy(board, color):
-    """Material strategy: sum up the material value of all pieces on the board."""
+    """Sums up the material value of all pieces on the board."""
     material_score = 0
     non_pawn_board_value = 0
     for piece_type, value in PIECE_VALUES.items():
@@ -29,7 +29,7 @@ def material_strategy(board, color):
     return material_score, non_pawn_board_value
 
 def aggressive_strategy(board, color):
-    """Aggressive strategy: prioritize threats and attacks on opponent's pieces."""
+    """Prioritizes threats and attacks on opponent's pieces."""
     enemy = not color
     aggression_level = MY_THREAT_VALUE if board.turn == color else OPPONENT_COUNTER_VALUE
     aggression_score = 0
@@ -76,9 +76,16 @@ def evaluate_board(board):
             lead_score -= CHECK_VALUE
         else:
             lead_score += CHECK_VALUE
-    return int(lead_score)
+    return round(lead_score, 1)
 
 
 def make_agent(depth = 3):
     return base_agent.ChessAgent("Beatrice's Agent", depth, evaluate_board)
+
+def make_beatrice_agent(depth = 3):
+    """Uses opening book and move ordering."""
+    agent = make_agent(depth)
+    agent.book = openings.opening_book
+    agent.use_ordering = True
+    return agent
 
