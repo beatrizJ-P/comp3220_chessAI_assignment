@@ -49,11 +49,19 @@ def draw_board():
     pygame.display.flip()
 
 
-running = True
-draw_board()
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+def main():
+    """Main function to run the chess GUI."""
+    clock = pygame.time.Clock()
+    global running
+    running = True
+    draw_board()
+    while running:
+        clock.tick(60)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
 
-pygame.quit()
+    pygame.quit()
+
+if __name__ == "__main__":
+    main()

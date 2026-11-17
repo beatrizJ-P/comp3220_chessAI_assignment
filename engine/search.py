@@ -1,4 +1,15 @@
+""" It also contains the minmax algorithm and alpha-besta pruning to determine the next best move. """
+
 import chess
+
+piece_values ={
+    chess.PAWN: 1,
+    chess.KNIGHT: 3,
+    chess.BISHOP: 3,
+    chess.ROOK: 5,
+    chess.QUEEN: 9,
+    chess.KING: 0
+}
 
 CHECKMATE = 10000
 
@@ -67,3 +78,21 @@ def get_best_move(board, depth, evaluate_board):
                 beta = min(beta, score)
             
     return best_move
+
+def priority_move(board:chess.Board, move:chess.Move):
+    score = 0
+    if board.is_capture(move):
+        if board.is_en_passant(move):
+            victim_value = piece_values[chess.PAWN]
+        else:
+            victim_value = piece_values[board.piece_type_at(move.to_square)]
+        attacker_value = piece_values[board.piece_type_at(move.from_square)]
+        score += victim_value - attacker_value
+    if move.promotion:
+        score += piece_values[move.promotion]
+    if board.gives_check(move):
+        score += 1
+    return score
+
+def order_moves(board:chess.Board, moves):
+    return sorted(moves, key=lambda move: priority_move(board, move), reverse=True) 
