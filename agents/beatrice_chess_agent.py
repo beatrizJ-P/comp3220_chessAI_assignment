@@ -1,7 +1,8 @@
 import chess
+import random
 
 from agents import base_agent
-from engine import openings
+from engine import openings, search
 
 PIECE_VALUES = {chess.PAWN: 10, chess.KNIGHT: 32, chess.BISHOP: 33,
                 chess.ROOK: 50, chess.QUEEN: 90}
@@ -79,13 +80,65 @@ def evaluate_board(board):
     return round(lead_score, 1)
 
 
+def convert_to_legal_moves(sans):
+    """Convert a list of SAN strings into chess.Move objects."""
+    board = chess.Board()
+    moves = []
+    for san in sans:
+        move = board.parse_san(san)
+        moves.append(move)
+        board.push(move)
+    return moves
+
+OPENING_LINES = {name: convert_to_legal_moves(sans) for name, sans in openings.OPENINGS.items()}
+
+class BeatriceChessAgent(base_agent.ChessAgent):
+    def __init__(self, name, depth, evaluate_board):
+        super().__init__(name, depth, evaluate_board)
+        self.opening_name = None
+        self.opening_line = None            # the selected opening, as a list of moves
+        self.last_move_from_book = False
+
+    def book_move(self, board):
+        """Next move of the selected opening, or None if the opening is over."""
+        if board.root().fen() != chess.STARTING_FEN:
+            return None                     # the book only applies to normal games
+        history = board.move_stack
+        ply = len(history)
+
+        if ply <= 1:                        # a new game has started: forget the old opening
+            self.opening_name, self.opening_line = None, None
+
+        line = self.opening_line
+        if line is not None:
+            n = min(ply, len(line))
+            if history[:n] == line[:n]:     # the game is still following our opening
+                return line[ply] if ply < len(line) else None   # None = opening complete
+        # No opening selected yet, or the opponent left it: pick one that fits the game so far
+        candidates = [name for name, l in OPENING_LINES.items()
+                      if len(l) > ply and l[:ply] == history]
+        if not candidates:
+            self.opening_name, self.opening_line = None, None
+            return None
+        self.opening_name = random.choice(candidates)
+        self.opening_line = OPENING_LINES[self.opening_name]
+        return self.opening_line[ply]
+
+    def get_move(self, board):
+        if board.is_game_over():
+            return None
+        move = self.book_move(board)
+        self.last_move_from_book = move is not None
+        if move is not None and move in board.legal_moves:
+            return move
+        self.last_move_from_book = False
+        return search.get_best_move(board.copy(), self.depth, self.evaluate_board)
+
+
 def make_agent(depth = 3):
     return base_agent.ChessAgent("Beatrice's Agent", depth, evaluate_board)
 
 def make_beatrice_agent(depth = 3):
-    """Uses opening book and move ordering."""
-    agent = make_agent(depth)
-    agent.book = openings.opening_book
-    agent.use_ordering = True
-    return agent
+    """Uses an opening book, then search with move ordering."""
+    return BeatriceChessAgent("Beatrice's Agent", depth, evaluate_board)
 

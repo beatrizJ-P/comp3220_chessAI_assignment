@@ -59,7 +59,7 @@ def _placeholder_eval(board):
 
 
 def make_agent_a(depth):
-    """Beatrice'sAgent: your agent."""
+    """Beatrice's Agent: your agent."""
     return make_beatrice_agent(depth)
 
 
