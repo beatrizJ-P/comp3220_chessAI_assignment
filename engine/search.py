@@ -1,6 +1,7 @@
 """ It also contains the minmax algorithm and alpha-besta pruning to determine the next best move. """
 
 import chess
+import random
 
 piece_values ={
     chess.PAWN: 1,
@@ -12,6 +13,27 @@ piece_values ={
 }
 
 CHECKMATE = 10000
+
+PIECE_VALUES = {chess.PAWN: 1, chess.KNIGHT: 3, chess.BISHOP: 3,
+                chess.ROOK: 5, chess.QUEEN: 9, chess.KING: 0}
+
+
+def order_moves(board):
+    def score(move):
+        s = 0
+        if board.is_capture(move):
+            victim = board.piece_at(move.to_square)
+            attacker = board.piece_at(move.from_square)
+            victim_value = PIECE_VALUES[victim.piece_type] if victim else 1
+            s += 10 * victim_value - PIECE_VALUES[attacker.piece_type]
+        if move.promotion:
+            s += 8
+        if board.gives_check(move):
+            s += 3
+        return s
+
+    return sorted(board.legal_moves, key=score, reverse=True)
+
 
 def minimax(board, depth, alpha, beta, maximizing_player, evaluate_board):
 
@@ -27,10 +49,12 @@ def minimax(board, depth, alpha, beta, maximizing_player, evaluate_board):
     if depth == 0:
         return evaluate_board(board)
 
+    moves = order_moves(board)
+
     # White's turn
     if maximizing_player:
         max_eval = float('-inf')
-        for move in board.legal_moves:
+        for move in moves:
             board.push(move)
             score = minimax(board, depth - 1, alpha, beta, False, evaluate_board)
             board.pop()
@@ -43,7 +67,7 @@ def minimax(board, depth, alpha, beta, maximizing_player, evaluate_board):
     # Black's turn
     else:
         min_eval = float('inf')
-        for move in board.legal_moves:
+        for move in moves:
             board.push(move)
             score = minimax(board, depth - 1, alpha, beta, True, evaluate_board)
             board.pop()
@@ -53,9 +77,10 @@ def minimax(board, depth, alpha, beta, maximizing_player, evaluate_board):
                 break
         return min_eval
 
+
 def get_best_move(board, depth, evaluate_board):
-    best_move = None
-    alpha, beta = float('-inf'), float('inf')
+    best_move = []
+    
     if board.turn == chess.WHITE:
         maximizing_player = True
         best_score = float('-inf')
@@ -63,36 +88,15 @@ def get_best_move(board, depth, evaluate_board):
         maximizing_player = False
         best_score = float('inf')
 
-    for move in board.legal_moves:
-        board.push(move)
-        score = minimax(board, depth - 1, alpha, beta, not maximizing_player, evaluate_board)
-        board.pop()
-        if maximizing_player and score > best_score: 
-                best_score = score
-                best_move = move
-                alpha = max(alpha, score)
+    moves = order_moves(board)
 
-        elif not maximizing_player and score < best_score:
+    for move in moves:
+        board.push(move)
+        score = minimax(board, depth - 1, float('-inf'), float('inf'), not maximizing_player, evaluate_board)
+        board.pop()
+        if (maximizing_player and score > best_score) or (not maximizing_player and score < best_score): 
                 best_score = score
                 best_move = move
                 beta = min(beta, score)
             
     return best_move
-
-def priority_move(board:chess.Board, move:chess.Move):
-    score = 0
-    if board.is_capture(move):
-        if board.is_en_passant(move):
-            victim_value = piece_values[chess.PAWN]
-        else:
-            victim_value = piece_values[board.piece_type_at(move.to_square)]
-        attacker_value = piece_values[board.piece_type_at(move.from_square)]
-        score += victim_value - attacker_value
-    if move.promotion:
-        score += piece_values[move.promotion]
-    if board.gives_check(move):
-        score += 1
-    return score
-
-def order_moves(board:chess.Board, moves):
-    return sorted(moves, key=lambda move: priority_move(board, move), reverse=True) 
