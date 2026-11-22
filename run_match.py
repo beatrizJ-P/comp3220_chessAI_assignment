@@ -5,7 +5,7 @@ Run from the project root:
     python run_match.py --games 10 --depth-a 2 --depth-b 3 --max-plies 200
 
 Agent A = Beatrice's (aggressive), Agent B = Sukanayna's (defensive). Colours alternate every game
-(A is White in games 1, 3, 5...). Writes to match_results/:
+(A is White in games 1, 3, 5...). Every run gets its own timestamped folder, match_results/<date_time>/:
     games.csv   one row per game (players, opening, first moves, result, how it ended, plies, seconds)
     moves.txt   every move of every game in numbered SAN
     games.pgn   the same games as PGN, loadable in any chess viewer
@@ -27,6 +27,17 @@ import chess.pgn
 from agents.beatrice_chess_agent import make_beatrice_agent
 from agents.sukanayna_chess_agent import make_defensive_agent
 from engine.engine import OPENINGS
+
+def new_run_dir(base, started):
+    """Create a fresh folder for this run: <base>/<YYYY-MM-DD_HH-MM-SS> (adds -2, -3, ... if it already exists)."""
+    stamp = started.strftime("%Y-%m-%d_%H-%M-%S")
+    path, n = os.path.join(base, stamp), 1
+    while os.path.exists(path):
+        n += 1
+        path = os.path.join(base, f"{stamp}-{n}")
+    os.makedirs(path)
+    return path
+
 
 NAMES = {"A": "Beatrice's Agent", "B": "Sukanayna's Agent"}
 SITE = "COMP3220"
@@ -96,14 +107,14 @@ def main():
     ap.add_argument("--depth-a", type=int, help="override depth for Agent A (Beatrice)")
     ap.add_argument("--depth-b", type=int, help="override depth for Agent B (Sukanayna)")
     ap.add_argument("--max-plies", type=int, default=300, help="stop and call it a draw after this many half-moves")
-    ap.add_argument("--out", default="match_results", help="output folder")
+    ap.add_argument("--out", default="match_results", help="base folder; each run is saved in its own timestamped subfolder")
     ap.add_argument("--seed", type=int, help="random seed, so a match (and its report) can be reproduced exactly")
     args = ap.parse_args()
     if args.seed is not None:
         random.seed(args.seed)
     depth = {"A": args.depth_a or args.depth, "B": args.depth_b or args.depth}
 
-    os.makedirs(args.out, exist_ok=True)
+    started = datetime.now()
     score = {"A": 0.0, "B": 0.0}
     tally = {"A wins": 0, "B wins": 0, "draws": 0}
     rows, pgn_games, move_log = [], [], []
@@ -150,13 +161,14 @@ def main():
                              "Black": NAMES[black_key], "Result": result, "Termination": reason})
         pgn_games.append(game)
 
-    with open(os.path.join(args.out, "games.csv"), "w", newline="") as f:
+    run_dir = new_run_dir(args.out, started)
+    with open(os.path.join(run_dir, "games.csv"), "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
         w.writeheader()
         w.writerows(rows)
-    with open(os.path.join(args.out, "moves.txt"), "w") as f:
+    with open(os.path.join(run_dir, "moves.txt"), "w") as f:
         f.write("\n".join(move_log))
-    with open(os.path.join(args.out, "games.pgn"), "w") as f:
+    with open(os.path.join(run_dir, "games.pgn"), "w") as f:
         for game in pgn_games:
             print(game, file=f, end="\n\n")
 
@@ -164,7 +176,7 @@ def main():
     print(f"{NAMES['A']} {score['A']:g} - {score['B']:g} {NAMES['B']}   "
           f"(wins {tally['A wins']}-{tally['B wins']}, draws {tally['draws']}, "
           f"depth {depth['A']} vs {depth['B']})")
-    print(f"Logs written to {args.out}/")
+    print(f"Logs written to {run_dir}/")
 
 
 if __name__ == "__main__":

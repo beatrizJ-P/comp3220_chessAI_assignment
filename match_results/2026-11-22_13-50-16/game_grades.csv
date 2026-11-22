@@ -1,0 +1,13 @@
+game,agent,color,game_result,moves,avg_cpl,median_cpl,avg_cpl_opening,avg_cpl_later,best_move_pct,inaccuracies,mistakes,blunders
+1,Beatrice's Agent,White,0-1,29,96.7,19.0,106.2,91.7,24.1,3,7,2
+1,Sukanayna's Agent,Black,0-1,29,64.9,9.0,94.4,49.3,34.5,2,6,1
+2,Sukanayna's Agent,White,1-0,40,90.7,35.5,106.2,85.6,25.0,9,8,2
+2,Beatrice's Agent,Black,1-0,39,120.1,54.0,48.8,144.7,33.3,10,7,4
+3,Beatrice's Agent,White,0-1,29,67.0,10.0,30.8,86.1,24.1,0,5,2
+3,Sukanayna's Agent,Black,0-1,29,34.0,0.0,88.8,5.1,37.9,4,0,1
+4,Sukanayna's Agent,White,1-0,36,60.1,6.5,54.1,62.3,50.0,3,5,2
+4,Beatrice's Agent,Black,1-0,35,82.4,42.0,77.7,84.2,31.4,4,8,2
+5,Beatrice's Agent,White,0-1,44,117.1,22.5,78.4,128.5,36.4,4,11,5
+5,Sukanayna's Agent,Black,0-1,44,90.8,52.0,116.8,83.1,29.5,9,10,3
+6,Sukanayna's Agent,White,1-0,25,76.2,8.0,115.1,50.2,44.0,1,6,2
+6,Beatrice's Agent,Black,1-0,24,119.0,27.5,125.2,114.5,37.5,4,4,2

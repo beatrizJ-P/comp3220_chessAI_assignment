@@ -4,6 +4,7 @@ Agent-vs-agent results for the **Aggressive** agent and the **Defensive** agent:
 6 games, both agents at search depth 3, colours alternating every game.
 
 > To run the match harness (adjustable): 
+> `python run_match.py ` #standard 6 games
 > `python run_match.py --games 6 --depth 3 --seed 3220`
 > `python run_match.py --games 10 --depth-a 2 --depth-b 3 --max-plies 200`
 

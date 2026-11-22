@@ -1,0 +1,3 @@
+agent,games,stockfish_depth,moves,avg_cpl,median_cpl,avg_cpl_opening,avg_cpl_later,best_move_pct,inaccuracies,mistakes,blunders
+Beatrice's Agent,6,14,200,101.6,23.5,77.8,111.8,31.5,25,42,17
+Sukanayna's Agent,6,14,203,71.7,22.0,95.9,61.5,36.0,28,35,11

@@ -1,8 +1,8 @@
 """Grade the agents' moves with Stockfish and write the results to CSV.
 
-Run from the project root, after run_match.py has produced match_results/games.pgn:
-    python stockfish_grade.py --stockfish /path/to/stockfish
-    python stockfish_grade.py --stockfish stockfish --depth 14 --pgn match_results/games.pgn --out match_results
+Run from the project root, after run_match.py has produced a run folder (match_results/<date_time>/):
+    python stockfish_grade.py --stockfish /path/to/stockfish                  # grades the newest run
+    python stockfish_grade.py --stockfish stockfish --depth 14 --run match_results/2026-11-22_14-30-05
 
 How a move is graded
     Stockfish scores the position before the move (what the best move would achieve) and the position
@@ -13,7 +13,7 @@ How a move is graded
 Move classes (by centipawn loss)
     best/good  < 50     inaccuracy  50-99     mistake  100-299     blunder  >= 300
 
-Writes to the output folder:
+Writes into the same run folder as the games it grades:
     move_grades.csv      one row per move (who, move, scores, CPL, Stockfish's best move, class)
     game_grades.csv      one row per agent per game (average CPL, best-move %, inaccuracies, ...)
     agent_summary.csv    one row per agent across the whole match
@@ -116,6 +116,17 @@ def summarise(rows):
     }
 
 
+def latest_run(results_dir):
+    """Return the newest run folder (one containing games.pgn) inside results_dir."""
+    if not os.path.isdir(results_dir):
+        sys.exit(f"No results folder '{results_dir}'. Run run_match.py first, or pass --run <folder>.")
+    runs = [os.path.join(results_dir, d) for d in os.listdir(results_dir)
+            if os.path.isfile(os.path.join(results_dir, d, "games.pgn"))]
+    if not runs:
+        sys.exit(f"No runs with a games.pgn found in '{results_dir}'. Run run_match.py first, or pass --run <folder>.")
+    return max(runs, key=lambda d: os.path.getmtime(os.path.join(d, "games.pgn")))
+
+
 def write_csv(path, rows):
     with open(path, "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
@@ -126,8 +137,8 @@ def write_csv(path, rows):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--stockfish", default="stockfish", help="path to the Stockfish executable (default: 'stockfish' on PATH)")
-    ap.add_argument("--pgn", default=os.path.join("match_results", "games.pgn"), help="PGN file written by match.py")
-    ap.add_argument("--out", default="match_results", help="output folder for the CSV files")
+    ap.add_argument("--run", help="run folder to grade (default: the newest folder in --results-dir)")
+    ap.add_argument("--results-dir", default="match_results", help="where run_match.py saves its runs (default: match_results)")
     ap.add_argument("--depth", type=int, default=12, help="Stockfish search depth per position (default 12)")
     ap.add_argument("--time", type=float, help="seconds per position instead of a fixed depth")
     ap.add_argument("--threads", type=int, default=1, help="Stockfish threads (default 1)")
@@ -140,10 +151,14 @@ def main():
         sys.exit(f"Could not find Stockfish at '{args.stockfish}'. Download it from https://stockfishchess.org/download/ "
                  "and pass its path with --stockfish.")
     engine.configure({"Threads": args.threads})
-    os.makedirs(args.out, exist_ok=True)
+    run_dir = args.run or latest_run(args.results_dir)
+    pgn_path = os.path.join(run_dir, "games.pgn")
+    if not os.path.isfile(pgn_path):
+        sys.exit(f"No games.pgn in '{run_dir}'.")
+    print(f"Grading run: {run_dir}")
 
     move_rows, game_rows = [], []
-    with engine, open(args.pgn) as pgn:
+    with engine, open(pgn_path) as pgn:
         while True:
             game = chess.pgn.read_game(pgn)
             if game is None:
@@ -159,7 +174,7 @@ def main():
                                   "game_result": game.headers.get("Result", ""), **summarise(mine)})
 
     if not move_rows:
-        sys.exit(f"No games found in {args.pgn}.")
+        sys.exit(f"No games found in {pgn_path}.")
 
     agent_rows = []
     for agent in sorted({r["agent"] for r in move_rows}):
@@ -167,16 +182,16 @@ def main():
                            "stockfish_depth": args.depth if not args.time else f"{args.time}s",
                            **summarise([r for r in move_rows if r["agent"] == agent])})
 
-    write_csv(os.path.join(args.out, "move_grades.csv"), move_rows)
-    write_csv(os.path.join(args.out, "game_grades.csv"), game_rows)
-    write_csv(os.path.join(args.out, "agent_summary.csv"), agent_rows)
+    write_csv(os.path.join(run_dir, "move_grades.csv"), move_rows)
+    write_csv(os.path.join(run_dir, "game_grades.csv"), game_rows)
+    write_csv(os.path.join(run_dir, "agent_summary.csv"), agent_rows)
 
     print("\n=== Agent summary (lower average CPL = more accurate) ===")
     for r in agent_rows:
         print(f"{r['agent']}: avg CPL {r['avg_cpl']}, best-move {r['best_move_pct']}%, "
               f"{r['inaccuracies']} inaccuracies, {r['mistakes']} mistakes, {r['blunders']} blunders "
               f"over {r['moves']} moves")
-    print(f"Grades written to {args.out}/")
+    print(f"Grades written to {run_dir}/")
 
 
 if __name__ == "__main__":

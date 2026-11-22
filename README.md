@@ -40,9 +40,10 @@ All commands below are run **from the project root** (the folder containing
 > **TODO:** confirm the launch command and list the GUI's real features below.
 
 ```bash
-python gui/app.py 
+python gui/app.py
 ```
-**or to run from outside of the folder**
+
+**or to run from outside of the gui folder**
 
 ```bash
 python -m gui.app
@@ -69,14 +70,16 @@ python run_match.py --games 6 --depth 3 --seed 3220  # reproducible
 | `--depth-a D` | Override depth for Agent A (aggressive) | none |
 | `--depth-b D` | Override depth for Agent B (defensive) | none |
 | `--max-plies N` | Call the game a draw after `N` half-moves | 300 |
-| `--out DIR` | Output folder | `match_results` |
+| `--out DIR` | Base folder; each run is saved in its own subfolder | `match_results` |
 | `--seed N` | Fix the random seed so a match can be reproduced exactly | none |
 
 - Colours alternate every game: the aggressive agent is White in games 1, 3, 5, ...
 - If an agent returns an illegal move, a random legal move is played instead
   and a warning is printed.
 
-Results are written to `match_results/`:
+Every run is saved in its own timestamped folder, `match_results/<date_time>/`
+(for example `match_results/2026-11-22_14-30-05/`), so earlier runs are never
+overwritten:
 
 | File | Contents |
 |---|---|
@@ -87,8 +90,9 @@ Results are written to `match_results/`:
 ## 4. Stockfish grading
 
 ```bash
-python stockfish_grade.py --stockfish /path/to/stockfish             # depth 12
+python stockfish_grade.py --stockfish /path/to/stockfish             # newest run, depth 12
 python stockfish_grade.py --stockfish /path/to/stockfish --depth 14  # slower, more reliable
+python stockfish_grade.py --stockfish /path/to/stockfish --run match_results/2026-11-22_14-30-05
 ```
 
 For each move, Stockfish scores the position before it and after the move that
@@ -99,11 +103,13 @@ Moves are classed as inaccuracy (CPL 50-99), mistake (100-299) or blunder (300+)
 | Option | Description | Default |
 |---|---|---|
 | `--stockfish PATH` | Stockfish executable | `stockfish` on PATH |
-| `--pgn FILE` | Games to grade | `match_results/games.pgn` |
-| `--out DIR` | Output folder | `match_results` |
+| `--run DIR` | Run folder to grade | newest folder in `--results-dir` |
+| `--results-dir DIR` | Where `run_match.py` saves its runs | `match_results` |
 | `--depth D` | Stockfish depth per position | 12 |
 | `--time S` | Seconds per position instead of a fixed depth | none |
 | `--threads N` | Stockfish threads | 1 |
+
+The grades are saved in the same run folder as the games they grade:
 
 | File | Contents |
 |---|---|
@@ -242,7 +248,7 @@ gui/
 documentation/
   match_report.md            Agent-vs-agent results and analysis
 
-match_results/               Output of run_match.py and stockfish_grade.py (generated)
+match_results/               One timestamped folder per run, from run_match.py and stockfish_grade.py (generated)
 run_match.py                 Agent-vs-agent match harness
 stockfish_grade.py           Stockfish grading of a finished match
 README.md
@@ -250,5 +256,5 @@ README.md
 
 ## AI Disclaimer
 
-Generative AI was used to assist with the code, the Stockfish grading script and
+Generative AI was used to assist with completing the code, the Stockfish grading script and
 the documentation for this project.
