@@ -1,0 +1,7 @@
+game,date,site,white,black,opening,book_plies,first_moves,result,winner,reason,plies,seconds,depth_A,depth_B
+1,2026.11.21,COMP3220,Beatrice's Agent,Sukanayna's Agent,King's Pawn Game (1.e4),1,1. e4 Nc6 2. Bb5 Nd4,0-1,Sukanayna's Agent,checkmate,154,69,3,2
+2,2026.11.21,COMP3220,Sukanayna's Agent,Beatrice's Agent,Van Geet Opening (1.Nc3),0,1. Nc3 c5 2. Nf3 Qa5,0-1,Beatrice's Agent,checkmate,146,62,3,2
+3,2026.11.21,COMP3220,Beatrice's Agent,Sukanayna's Agent,English Opening (1.c4),1,1. c4 Nc6 2. Qa4 Nf6,1-0,Beatrice's Agent,checkmate,107,41,3,2
+4,2026.11.21,COMP3220,Sukanayna's Agent,Beatrice's Agent,Reti Opening (1.Nf3),0,1. Nf3 f5 2. Nc3 c5,0-1,Beatrice's Agent,checkmate,46,27,3,2
+5,2026.11.21,COMP3220,Beatrice's Agent,Sukanayna's Agent,King's Pawn Game (1.e4),1,1. e4 Nc6 2. Bb5 Nd4,1-0,Beatrice's Agent,checkmate,99,82,3,2
+6,2026.11.21,COMP3220,Sukanayna's Agent,Beatrice's Agent,Reti Opening (1.Nf3),0,1. Nf3 f5 2. Nc3 d5,0-1,Beatrice's Agent,checkmate,76,64,3,2

@@ -1,0 +1,17 @@
+# Virtual environment (recreate with: python3/python -m venv venv && pip install -r requirements.txt)
+venv/
+.venv/
+env/
+
+# Python build and cache files
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+
+# Secrets / local config (none used, but never commit them)
+.env
+
