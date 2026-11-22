@@ -2,7 +2,7 @@ import chess
 import random
 
 from agents import base_agent
-from engine import openings, search
+from engine import engine
 
 PIECE_VALUES = {chess.PAWN: 10, chess.KNIGHT: 32, chess.BISHOP: 33,
                 chess.ROOK: 50, chess.QUEEN: 90}
