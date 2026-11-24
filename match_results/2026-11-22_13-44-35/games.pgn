@@ -1,0 +1,72 @@
+[Event "Agent match"]
+[Site "COMP3220"]
+[Date "2026.11.22"]
+[Round "1"]
+[White "Beatrice's Agent"]
+[Black "Sukanayna's Agent"]
+[Result "0-1"]
+[Opening "Pirc Defence (1.e4 d6)"]
+[Termination "checkmate"]
+
+1. e4 d6 2. Bb5+ c6 3. Bxc6+ Nxc6 4. e5 Bg4 5. Qxg4 Nf6 6. exf6 gxf6 7. a4 Na5 8. b4 Nb3 9. cxb3 Rc8 10. Qxc8 Qxc8 11. Nc3 Qc6 12. b5 Qxg2 13. b6 Qxh1 14. bxa7 Qxg1+ 15. Ke2 Qg4+ 16. f3 Qe6+ 17. Ne4 Qc8 18. a8=Q Qxa8 19. Nxf6+ exf6 20. a5 Qc8 21. a6 Qe6+ 22. Kf1 bxa6 23. Rxa6 Qh3+ 24. Ke1 Qxf3 25. Ra7 Qh1+ 26. Ke2 Qxc1 27. Kf3 Qc6+ 28. Ke2 Qe4+ 29. Kf1 Qf4+ 30. Kg1 Rg8+ 31. Kh1 Qf1# 0-1
+
+[Event "Agent match"]
+[Site "COMP3220"]
+[Date "2026.11.22"]
+[Round "2"]
+[White "Sukanayna's Agent"]
+[Black "Beatrice's Agent"]
+[Result "1-0"]
+[Opening "Reti Opening (1.Nf3)"]
+[Termination "checkmate"]
+
+1. Nf3 d5 2. Ne5 Qd6 3. d4 Qxe5 4. dxe5 d4 5. c3 dxc3 6. Nxc3 Bg4 7. Nd5 Bxe2 8. Nxc7# 1-0
+
+[Event "Agent match"]
+[Site "COMP3220"]
+[Date "2026.11.22"]
+[Round "3"]
+[White "Beatrice's Agent"]
+[Black "Sukanayna's Agent"]
+[Result "0-1"]
+[Opening "Pirc Defence (1.e4 d6)"]
+[Termination "checkmate"]
+
+1. e4 d6 2. Bb5+ c6 3. Bxc6+ Nxc6 4. e5 Bg4 5. Qxg4 Nf6 6. exf6 gxf6 7. b4 Qb6 8. b5 Qxb5 9. c4 Qe5+ 10. Ne2 Qxa1 11. Nbc3 Ne5 12. Qh3 Nxc4 13. Qg4 Nxd2 14. Kxd2 Bh6+ 15. Ke1 Bxc1 16. Nxc1 Qxc3+ 17. Kd1 Rc8 18. Qxc8+ Qxc8 19. Ke2 Qg4+ 20. f3 Qxg2+ 21. Kd3 Qxf3+ 22. Kc2 Qxh1 23. Kb1 Qe4+ 24. Ka1 a5 25. a4 Qc2 26. Na2 Qb3 27. Nc1 Qb4 28. Nd3 Qa3+ 29. Kb1 Qxd3+ 30. Ka1 Qb3 31. h4 Rg8 32. h5 Rg1# 0-1
+
+[Event "Agent match"]
+[Site "COMP3220"]
+[Date "2026.11.22"]
+[Round "4"]
+[White "Sukanayna's Agent"]
+[Black "Beatrice's Agent"]
+[Result "1-0"]
+[Opening "Van Geet Opening (1.Nc3)"]
+[Termination "checkmate"]
+
+1. Nc3 b5 2. Nxb5 c6 3. Nd4 c5 4. Nb5 Qa5 5. e3 Qxb5 6. Bxb5 Ba6 7. Qf3 Bxb5 8. Qxa8 Bc6 9. Qxb8# 1-0
+
+[Event "Agent match"]
+[Site "COMP3220"]
+[Date "2026.11.22"]
+[Round "5"]
+[White "Beatrice's Agent"]
+[Black "Sukanayna's Agent"]
+[Result "0-1"]
+[Opening "Pirc Defence (1.e4 d6)"]
+[Termination "checkmate"]
+
+1. e4 d6 2. Bb5+ c6 3. Bxc6+ Nxc6 4. e5 Bg4 5. Qxg4 Nf6 6. exf6 gxf6 7. b4 Qb6 8. b5 Qxb5 9. c4 Qe5+ 10. Ne2 Qxa1 11. Qf5 Qxa2 12. Nbc3 Qxc4 13. d3 Qh4 14. g3 Qb4 15. f4 Qb3 16. Qd5 Qc2 17. Qxc6+ bxc6 18. O-O Qxd3 19. Rd1 Qf3 20. Rf1 Qg4 21. h3 Qxh3 22. f5 Bg7 23. Nf4 Qxg3+ 24. Ng2 Qxc3 25. Re1 Qf3 26. Re3 Qd1+ 27. Re1 Qd3 28. Nf4 Qg3+ 29. Ng2 O-O 30. Rxe7 d5 31. Bf4 Qg4 32. Bc7 Qxf5 33. Nh4 Qb1+ 34. Kh2 Qb2+ 35. Ng2 Qb7 36. Bd6 Qb6 37. Bc7 Qc5 38. Re3 Rac8 39. Bd6 Qxd6+ 40. Rg3 f5 41. Nh4 Qe5 42. Nf3 Qc7 43. Ng5 Be5 44. Nxh7+ Bxg3+ 45. Kh1 Kxh7 46. Kg1 Qf4 47. Kh1 Qf1# 0-1
+
+[Event "Agent match"]
+[Site "COMP3220"]
+[Date "2026.11.22"]
+[Round "6"]
+[White "Sukanayna's Agent"]
+[Black "Beatrice's Agent"]
+[Result "1-0"]
+[Opening "Van Geet Opening (1.Nc3)"]
+[Termination "checkmate"]
+
+1. Nc3 b5 2. Nxb5 a6 3. Nd4 c5 4. Nb3 c4 5. Nd4 e5 6. e3 exd4 7. Bxc4 dxe3 8. Qf3 d5 9. Bxd5 Qxd5 10. Qxd5 exd2+ 11. Bxd2 Ra7 12. O-O-O Rd7 13. Qe5+ Re7 14. Qxb8 Rb7 15. Qxc8+ Ke7 16. Re1+ Kf6 17. Qxb7 Kg6 18. Re8 Nf6 19. Qxa6 Kh5 20. Qa5+ g5 21. Qxg5# 1-0
+

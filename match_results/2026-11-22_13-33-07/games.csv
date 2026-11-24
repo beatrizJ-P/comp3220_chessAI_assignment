@@ -1,0 +1,7 @@
+game,date,site,white,black,opening,book_plies,first_moves,result,winner,reason,plies,seconds,depth_A,depth_B
+1,2026.11.22,COMP3220,Beatrice's Agent,Sukanayna's Agent,Indian Defence (1.d4 Nf6),3,1. d4 Nf6 2. c4 Ne4,0-1,Sukanayna's Agent,checkmate,66,90,3,3
+2,2026.11.22,COMP3220,Sukanayna's Agent,Beatrice's Agent,Reti Opening (1.Nf3),0,1. Nf3 f5 2. Ng5 e5,0-1,Beatrice's Agent,checkmate,94,74,3,3
+3,2026.11.22,COMP3220,Beatrice's Agent,Sukanayna's Agent,Pirc Defence (1.e4 d6),1,1. e4 d6 2. Bb5+ c6,0-1,Sukanayna's Agent,checkmate,38,51,3,3
+4,2026.11.22,COMP3220,Sukanayna's Agent,Beatrice's Agent,Reti Opening (1.Nf3),0,1. Nf3 f5 2. Ng5 f4,0-1,Beatrice's Agent,checkmate,190,89,3,3
+5,2026.11.22,COMP3220,Beatrice's Agent,Sukanayna's Agent,Pirc Defence (1.e4 d6),1,1. e4 d6 2. Bb5+ c6,1-0,Beatrice's Agent,checkmate,135,178,3,3
+6,2026.11.22,COMP3220,Sukanayna's Agent,Beatrice's Agent,Reti Opening (1.Nf3),0,1. Nf3 f5 2. Ng5 a5,1-0,Sukanayna's Agent,checkmate,15,22,3,3

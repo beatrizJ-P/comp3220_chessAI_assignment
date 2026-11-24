@@ -6,7 +6,7 @@ import chess
 import random
 
 from agents import base_agent
-from engine import openings, search
+from engine import engine
 
 PIECE_VALUES = {chess.PAWN: 10, chess.KNIGHT: 32, chess.BISHOP: 33,
                 chess.ROOK: 50, chess.QUEEN: 90} # a dictionary of piece values for evaluation purposes
@@ -96,7 +96,7 @@ def convert_to_legal_moves(sans):
         board.push(move)
     return moves
 
-OPENING_LINES = {name: convert_to_legal_moves(sans) for name, sans in openings.OPENINGS.items()}
+OPENING_LINES = {name: convert_to_legal_moves(sans) for name, sans in engine.OPENINGS.items()}
 
 class BeatriceChessAgent(base_agent.ChessAgent):
     """Uses an opening book, then search with move ordering."""
@@ -140,7 +140,7 @@ class BeatriceChessAgent(base_agent.ChessAgent):
         if move is not None and move in board.legal_moves:
             return move
         self.last_move_from_book = False
-        return search.get_best_move(board.copy(), self.depth, self.evaluate_board)
+        return engine.get_best_move(board.copy(), self.depth, self.evaluate_board)
 
 
 def make_agent(depth = 3):
@@ -149,4 +149,3 @@ def make_agent(depth = 3):
 def make_beatrice_agent(depth = 3):
     """Uses an opening book, then search with move ordering."""
     return BeatriceChessAgent("Beatrice's Agent", depth, evaluate_board)
-

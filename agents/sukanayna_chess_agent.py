@@ -3,9 +3,7 @@
 import os
 import sys
 import chess
-from agents.beatrice_chess_agent import evaluate_board
-from engine import openings, search
-#from gui import app
+from engine import engine
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -25,6 +23,92 @@ PIECE_VALUES = {
 LOSS_AVERSION = 1.15            # weight on our own material (opponent's counts 1.0)
 LEAD_THRESHOLD = 200            # "ahead" = at least two pawns up
 START_NON_PAWN = 6400           # non-pawn material on the board at the start (both sides)
+# Scale of the whole piece-square score. Tested against this agent without PSTs (10 games,
+# depth 2, moves graded by Stockfish): 7-3, blunders 27 vs 36, opening accuracy 51 vs 66 cp lost/move.
+PST_WEIGHT = 1.0
+
+#----------------------------------------------------------------------------------------------- Piece-square tables
+
+#Defensive piece-square tables: a bonus/penalty for each piece on each square, in centipawns.
+#Written from White's point of view as the board looks to White (first row = rank 8, last row = rank 1).
+#Black uses the same tables mirrored, so the evaluation stays colour-symmetric.
+#Unlike the aggressive agent's tables (which reward advancing), these reward a solid, compact setup:
+#shelter pawns stay home, pieces guard their own half, and the queen stays back.
+
+PAWN_TABLE = [
+     0,   0,   0,   0,   0,   0,   0,   0,
+    50,  50,  50,  50,  50,  50,  50,  50,    # only really near promotion
+    15,  15,  20,  25,  25,  20,  15,  15,
+     5,   5,  10,  20,  20,  10,   5,   5,
+     0,   0,  10,  20,  20,   5, -10, -15,    # flank pawn pushes (g4/h4) loosen the king
+     5,   5,   5,  10,  10,   0, -10, -10,
+     5,   5,   5, -15, -15,  15,  20,  20,    # shelter pawns f2/g2/h2 stay home
+     0,   0,   0,   0,   0,   0,   0,   0,
+]
+KNIGHT_TABLE = [
+   -50, -40, -30, -30, -30, -30, -40, -50,
+   -40, -20,   0,   0,   0,   0, -20, -40,    # deep raids are risky
+   -30,   0,  10,  10,  10,  10,   0, -30,
+   -30,   5,  15,  20,  20,  15,   5, -30,
+   -30,   0,  15,  20,  20,  15,   0, -30,
+   -30,   5,  15,  15,  15,  15,   5, -30,    # c3/f3: guarding the centre from home
+   -40, -20,   0,   5,   5,   0, -20, -40,
+   -50, -40, -30, -30, -30, -30, -40, -50,    # rim and corners are poor
+]
+BISHOP_TABLE = [
+   -20, -10, -10, -10, -10, -10, -10, -20,
+   -10,   0,   0,   0,   0,   0,   0, -10,
+   -10,   0,   5,  10,  10,   5,   0, -10,
+   -10,   5,   5,  10,  10,   5,   5, -10,
+   -10,   0,  10,  10,  10,  10,   0, -10,
+   -10,  10,  10,  10,  10,  10,  10, -10,
+   -10,  15,   5,  10,  10,   5,  15, -10,    # fianchetto (b2/g2) and e2/d2 cover the king
+   -20, -10, -10, -10, -10, -10, -10, -20,
+]
+ROOK_TABLE = [
+     0,   0,   0,   0,   0,   0,   0,   0,
+     5,  10,  10,  10,  10,  10,  10,   5,
+    -5,   0,   0,   0,   0,   0,   0,  -5,
+    -5,   0,   0,   0,   0,   0,   0,  -5,
+    -5,   0,   0,   0,   0,   0,   0,  -5,
+    -5,   0,   0,   0,   0,   0,   0,  -5,
+     0,   5,   5,   5,   5,   5,   5,   0,    # 2nd rank: defending its own pawns
+     0,   0,   5,  10,  10,   5,   0,   0,    # d1/e1 after castling
+]
+QUEEN_TABLE = [
+   -30, -20, -20, -15, -15, -20, -20, -30,    # deep in enemy territory = easy target
+   -20, -10, -10, -10, -10, -10, -10, -20,
+   -10,  -5,   0,   0,   0,   0,  -5, -10,
+    -5,   0,   5,   5,   5,   5,   0,  -5,
+    -5,   0,   5,   5,   5,   5,   0,  -5,
+   -10,   5,   5,   5,   5,   5,   5, -10,
+   -10,   0,   5,  10,  10,   5,   0, -10,    # d2/e2: centralised but safe
+   -20, -10,  -5,   0,   0,  -5, -10, -20,
+]
+KING_MIDDLEGAME_TABLE = [
+   -60, -60, -60, -70, -70, -60, -60, -60,
+   -60, -60, -60, -70, -70, -60, -60, -60,
+   -50, -50, -50, -60, -60, -50, -50, -50,
+   -40, -40, -40, -50, -50, -40, -40, -40,
+   -30, -30, -30, -40, -40, -30, -30, -30,
+   -20, -20, -20, -30, -30, -20, -20, -20,
+     5,   5, -10, -20, -20, -10,   5,   5,
+    20,  35,  15, -10,   0, -10,  35,  25,    # strongly prefer a castled corner
+]
+KING_ENDGAME_TABLE = [
+   -50, -40, -30, -20, -20, -30, -40, -50,
+   -30, -20, -10,   0,   0, -10, -20, -30,
+   -30, -10,  20,  30,  30,  20, -10, -30,
+   -30, -10,  30,  35,  35,  30, -10, -30,
+   -30, -10,  30,  35,  35,  30, -10, -30,
+   -30, -10,  20,  30,  30,  20, -10, -30,
+   -30, -30,   0,   0,   0,   0, -30, -30,
+   -50, -30, -30, -30, -30, -30, -30, -50,    # endgame: the king must still come out
+]
+PIECE_TABLES = {chess.PAWN: PAWN_TABLE, chess.KNIGHT: KNIGHT_TABLE, chess.BISHOP: BISHOP_TABLE,
+                chess.ROOK: ROOK_TABLE, chess.QUEEN: QUEEN_TABLE}
+ENDGAME_MATERIAL = 2400     # total non-pawn material (both sides) at or below which the king centralises
+
 
 #----------------------------------------------------------------------------------------------- Code 
 
@@ -66,6 +150,24 @@ class DefensiveAgent(base_agent.ChessAgent):
                              + self._development(board, color))
         score += self._simplification_bonus(board)
         return int(score)
+
+    #Piece-square score, White minus Black. White pieces read the table at the mirrored square
+    #(the tables are written rank 8 first), Black pieces read it directly.
+    #The king's two tables are blended by game phase: 1.0 = all pieces on, 0.0 = only kings/pawns.
+    @staticmethod
+    def _piece_squares(board):
+        non_pawn = sum(PIECE_VALUES[p.piece_type] for p in board.piece_map().values()
+                       if p.piece_type not in (chess.PAWN, chess.KING))
+        phase = min(1.0, non_pawn / START_NON_PAWN)
+        score = 0.0
+        for sq, piece in board.piece_map().items():
+            index = chess.square_mirror(sq) if piece.color == chess.WHITE else sq
+            if piece.piece_type == chess.KING:
+                value = phase * KING_MIDDLEGAME_TABLE[index] + (1 - phase) * KING_ENDGAME_TABLE[index]
+            else:
+                value = PIECE_TABLES[piece.piece_type][index]
+            score += value if piece.color == chess.WHITE else -value
+        return score
 
     @staticmethod
     def _material(board, color):
@@ -148,5 +250,28 @@ class DefensiveAgent(base_agent.ChessAgent):
         bonus = max(0, START_NON_PAWN - non_pawn) // 20
         return bonus if self.color == chess.WHITE else -bonus
 
-def make_sukanayna_agent(depth = DEFAULT_DEPTH):
-    return base_agent.ChessAgent("Sukanayna's Agent", depth, evaluate_board)
+def pst_score(board):
+    """Piece-square score from White's view. Tables are laid out as White sees the board
+    (row 0 = rank 8), so White indexes with square ^ 56 and Black uses the raw square (mirror)."""
+    non_pawn = sum(PIECE_VALUES[p.piece_type] for p in board.piece_map().values()
+                   if p.piece_type not in (chess.PAWN, chess.KING))
+    king_table = KING_ENDGAME_TABLE if non_pawn <= ENDGAME_MATERIAL else KING_MIDDLEGAME_TABLE
+    score = 0
+    for sq, piece in board.piece_map().items():
+        table = king_table if piece.piece_type == chess.KING else PIECE_TABLES[piece.piece_type]
+        score += table[sq ^ 56] if piece.color == chess.WHITE else -table[sq]
+    return score
+
+
+class DefensiveAgentPST(DefensiveAgent):
+    """DefensiveAgent whose evaluation also includes the piece-square tables."""
+
+    def evaluate_board(self, board):
+        return int(DefensiveAgent.evaluate_board(self, board) + PST_WEIGHT * pst_score(board))
+
+
+def make_defensive_agent(depth=3):
+    agent = DefensiveAgentPST(depth)
+    agent.name = "Sukanayna's Agent"
+    return agent
+
