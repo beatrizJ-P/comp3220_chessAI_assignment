@@ -1,3 +1,7 @@
+"""
+This agent is built on an aggressive strategy, prioritizing threats and attacks on the opponent's pieces. 
+It evaluates the state of the board, making moves that maximize the potential for attacks and counter play.
+"""
 import chess
 import random
 
@@ -5,16 +9,17 @@ from agents import base_agent
 from engine import openings, search
 
 PIECE_VALUES = {chess.PAWN: 10, chess.KNIGHT: 32, chess.BISHOP: 33,
-                chess.ROOK: 50, chess.QUEEN: 90}
-BISHOP_PAIR_BONUS = 3
-NON_PAWN_BOARD_VALUE = 2*(2*PIECE_VALUES[chess.KNIGHT] + 2*PIECE_VALUES[chess.BISHOP] + 2*PIECE_VALUES[chess.ROOK] + PIECE_VALUES[chess.QUEEN])
-TRADE_FACTOR = 0.25
-MY_THREAT_VALUE = 0.3
-OPPONENT_COUNTER_VALUE = 0.1
-KING_ZONE = 0.5
-CHECK_VALUE = 2.5
-PAWN_ADVANCEMENT_VALUE = 0.4
+                chess.ROOK: 50, chess.QUEEN: 90} # a dictionary of piece values for evaluation purposes
+BISHOP_PAIR_BONUS = 3 # bonus for having both bishops on the board
+NON_PAWN_BOARD_VALUE = 6400 # non-pawn material on the board at the start (both sides)
+TRADE_FACTOR = 0.25 # weight on the value of trades, relative to the material lead
+MY_THREAT_VALUE = 0.3 # bonus for our own threats
+OPPONENT_COUNTER_VALUE = 0.1 # penalty for the opponent's counter-threats
+KING_ZONE = 0.5  # bonus for attacking the opponent's king
+CHECK_VALUE = 2.5 # bonus for putting the opponent in check
+PAWN_ADVANCEMENT_VALUE = 0.4 # bonus for advancing pawns on the board
 
+""".................... STRATEGY FUNCTIONS ...................."""
 
 def material_strategy(board, color):
     """Sums up the material value of all pieces on the board."""
@@ -66,6 +71,7 @@ def aggressive_strategy(board, color):
 
 
 def evaluate_board(board):
+    """Evaluates the board state and returns a score from the perspective of white."""
     white_material_score, white_non_pawn_value = material_strategy(board, chess.WHITE)
     black_material_score, black_non_pawn_value = material_strategy(board, chess.BLACK)
     lead = white_material_score - black_material_score
@@ -81,7 +87,7 @@ def evaluate_board(board):
 
 
 def convert_to_legal_moves(sans):
-    """Convert a list of SAN strings into chess.Move objects."""
+    """Convert a opening string into chess.Move objects."""
     board = chess.Board()
     moves = []
     for san in sans:
@@ -93,6 +99,7 @@ def convert_to_legal_moves(sans):
 OPENING_LINES = {name: convert_to_legal_moves(sans) for name, sans in openings.OPENINGS.items()}
 
 class BeatriceChessAgent(base_agent.ChessAgent):
+    """Uses an opening book, then search with move ordering."""
     def __init__(self, name, depth, evaluate_board):
         super().__init__(name, depth, evaluate_board)
         self.opening_name = None
@@ -125,6 +132,7 @@ class BeatriceChessAgent(base_agent.ChessAgent):
         return self.opening_line[ply]
 
     def get_move(self, board):
+        """Return the next move to play, or None if the game is over."""
         if board.is_game_over():
             return None
         move = self.book_move(board)

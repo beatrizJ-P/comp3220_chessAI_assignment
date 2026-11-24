@@ -25,6 +25,7 @@ import pygame
 
 from agents.base_agent import ChessAgent
 from agents.beatrice_chess_agent import make_beatrice_agent
+from agents.sukanayna_chess_agent import make_sukanayna_agent
 
 # ------------------------------------------------------------------ config
 SQUARE = 70
@@ -50,28 +51,18 @@ BTN, BTN_HOVER, BTN_ACTIVE, BTN_OFF = (72, 70, 66), (100, 98, 92), (70, 140, 90)
 
 
 # ------------------------------------------------------------------ agents
-def _placeholder_eval(board):
-    """Material-only evaluation, used until Agent B exists."""
-    values = {chess.PAWN: 100, chess.KNIGHT: 320, chess.BISHOP: 330,
-              chess.ROOK: 500, chess.QUEEN: 900}
-    return sum(v * (len(board.pieces(p, chess.WHITE)) - len(board.pieces(p, chess.BLACK)))
-               for p, v in values.items())
-
 
 def make_agent_a(depth):
-    """Beatrice's Agent: your agent."""
+    """Beatrice's Agent: aggressive, attack-oriented, prioritizes threats and counterplay."""
     return make_beatrice_agent(depth)
 
 
 def make_agent_b(depth):
-    """Agent B: TODO - replace with your partner's agent, e.g.
-         from agents.partner_agent import make_partner_agent
-         return make_partner_agent(depth)
-    Until then a plain material-only agent stands in."""
-    return ChessAgent("Agent B (placeholder)", depth, _placeholder_eval)
+    """Sukanayna's Agent: defensive, pawn-structure focused, emphasizes piece coordination."""
+    return make_sukanayna_agent(depth)
 
 
-AGENTS = {"A": ("Beatrice's Agent", make_agent_a), "B": ("Agent B", make_agent_b)}
+AGENTS = {"Beatrice": ("Beatrice's Agent", make_agent_a), "Sukanayna": ("Sukanayna's Agent", make_agent_b)}
 
 
 # ----------------------------------------------------------------- helpers
@@ -170,7 +161,7 @@ class App:
         self.f_mid, self.f_small = font(17), font(14)
         self.running = True
         self.state = "menu"                 # "menu" or "game"
-        self.depths = {"A": DEFAULT_DEPTH, "B": DEFAULT_DEPTH}
+        self.depths = {"Beatrice": DEFAULT_DEPTH, "Sukanayna": DEFAULT_DEPTH}
         self.human_white = True
         self.session = 0                    # bumps on every new game (ignores stale threads)
         self.hl = pygame.Surface((SQUARE, SQUARE), pygame.SRCALPHA)
@@ -182,14 +173,14 @@ class App:
     def _build_menu(self):
         cx = WIN_W // 2
         b = []
-        modes = (("ha", f"Human vs {AGENTS['A'][0]} (Agent A)"),
-                 ("hb", f"Human vs {AGENTS['B'][0]} (Agent B)"),
-                 ("ab", "Agent A vs Agent B"))
+        modes = (("ha", f"Human vs {AGENTS['Beatrice'][0]}"),
+                 ("hb", f"Human vs {AGENTS['Sukanayna'][0]}"),
+                 ("ab", f"{AGENTS['Beatrice'][0]} vs {AGENTS['Sukanayna'][0]}"))
         for i, (mode, label) in enumerate(modes):
             b.append(Button((cx - 190, 130 + i * 68, 380, 54), label,
                             lambda m=mode: self.start_game(m)))
         # depth selectors (bonus)
-        for i, key in enumerate(("A", "B")):
+        for i, key in enumerate(("Beatrice", "Sukanayna")):
             y = 360 + i * 46
             b.append(Button((cx + 20, y, 36, 36), "-", lambda k=key: self._change_depth(k, -1)))
             b.append(Button((cx + 108, y, 36, 36), "+", lambda k=key: self._change_depth(k, +1)))
@@ -216,7 +207,7 @@ class App:
             btn.draw(self.screen, self.f_mid, mouse)
         draw_text(self.screen, "Search depth (higher = stronger, slower)", self.f_small,
                   TEXT_DIM, (cx, 342), center=True)
-        for i, key in enumerate(("A", "B")):
+        for i, key in enumerate(("Beatrice", "Sukanayna")):
             y = 360 + i * 46
             draw_text(self.screen, f"{AGENTS[key][0]}:", self.f_mid, TEXT, (cx - 190, y + 8))
             draw_text(self.screen, str(self.depths[key]), self.f_big, TEXT, (cx + 82, y + 18), center=True)
@@ -241,8 +232,8 @@ class App:
         self.session += 1
         self._reset_game_state()
         self.mode = mode
-        a = AGENTS["A"][1](self.depths["A"])
-        b = AGENTS["B"][1](self.depths["B"])
+        a = AGENTS["Beatrice"][1](self.depths["Beatrice"])
+        b = AGENTS["Sukanayna"][1](self.depths["Sukanayna"])
         if mode == "ab":
             self.agents = {chess.WHITE: a, chess.BLACK: b}
         else:
