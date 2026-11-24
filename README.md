@@ -1,5 +1,9 @@
 # COMP3220 Chess Agents: Minimax enhanced with Alpha-Beta Pruning
 
+# Group Members:
+Beatrice Matthias - 620161377
+Sukanayna Hoo - 620173255
+
 Two chess-playing agents that share one Minimax + Alpha-Beta search engine but
 use deliberately different evaluation functions (strategies), plus a GUI, an
 agent-vs-agent match harness and a Stockfish move-grading script.
@@ -256,5 +260,4 @@ README.md
 
 ## AI Disclaimer
 
-Generative AI was used to assist with completing the code, the Stockfish grading script and
-the documentation for this project.
+Generative AI was used to assist with strengthening the agents, and creating match harness, the Stockfish grading script and the documentation for this project.
